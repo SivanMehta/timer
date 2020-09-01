@@ -17,7 +17,7 @@ p {
 <p id="demo"></p>
 
 <script>
-function start() {
+async function start() {
   const today = new Date();
   const future = parseInt(minutes.value) * 1000 * 60;
 
@@ -49,6 +49,33 @@ function start() {
       document.getElementById("demo").innerHTML = "EXPIRED";
     }
   }, 1000);
+
+
+  // Function that attempts to request a screen wake lock.
+  async function requestWakeLock () {
+    try {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => {
+        console.log('Screen Wake Lock was released');
+      });
+      console.log('Screen Wake Lock is active');
+    } catch (err) {
+      console.error(`${err.name}, ${err.message}`);
+    }
+  };
+
+  // The wake lock sentinel.
+  let wakeLock = null;
+
+  // Screen Wake Lock API supported 🎉
+  if ('wakeLock' in navigator) {
+    // Request a screen wake lock…
+    await requestWakeLock();
+    window.setTimeout(() => {
+      wakeLock.release();
+      wakeLock = null;
+    }, parseInt(minutes.value) * 1000 * 60);
+  }
 }
 </script>
 
